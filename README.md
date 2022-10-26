@@ -1,1 +1,1 @@
-# album-docker
+# Template plugin for extending Album commandline features
