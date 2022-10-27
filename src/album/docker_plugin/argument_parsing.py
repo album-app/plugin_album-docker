@@ -12,7 +12,7 @@ from album.runner.album_logging import get_active_logger
 
 
 def album_docker(album_instance: Album, args):
-    from album.docker.build_image import run
+    from album.docker_plugin.build_image import run
     run(album_instance, args)
 
 
