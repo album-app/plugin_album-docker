@@ -1,18 +1,31 @@
-import logging
-import os
-import re
+import shutil
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
-import pkg_resources
+import docker
 
 from album.api import Album
 from album.runner.album_logging import get_active_logger
 
-from album.docker_plugin.create_dockerfile import create_dockerfile
+
+def create_dockerfile(output_path):
+    dockerfile_str = '''FROM frolvlad/alpine-miniconda3\n\nCOPY . /solution\n\nRUN apk add git --no-cache \\ 
+\t&& pip install album \\ \n\t&& album install /solution/solution.py
+ENTRYPOINT ["album", "run", "/solution/solution.py"]'''
+    dockerfile_path = Path(output_path).joinpath('Dockerfile')
+    with open(dockerfile_path, 'w') as file:
+        file.write(dockerfile_str)
+    return dockerfile_path
 
 
-def build_image(dockerfile):
-    pass
+def build_image(coordinates, context, output):
+    coordinates = str(coordinates).replace(':', '_').lower()
+    image_tar_name = "%s_image.tar" % coordinates
+    client = docker.from_env()
+    image = client.images.build(path=context, tag=coordinates, rm=True)[0]
+    with open(Path(output).joinpath(image_tar_name), 'wb') as file:
+        for chunk in image.save():
+            file.write(chunk)
 
 
 def get_solution_info(album_instance: Album, solution):
@@ -24,6 +37,13 @@ def get_solution_info(album_instance: Album, solution):
     return path, coordinates
 
 
+def copy_to_context(src, target):
+    if Path(src).is_dir():
+        shutil.copytree(src, target)
+    else:
+        shutil.copy(src, target)
+
+
 def run(album_instance: Album, args):
     solution_path, coordinates = get_solution_info(album_instance, args.solution)
 
@@ -31,7 +51,7 @@ def run(album_instance: Album, args):
     get_active_logger().info("solution: %s at %s" % (coordinates, solution_path))
     get_active_logger().info("output directory: %s" % args.output)
 
-    dockerfile = create_dockerfile(solution_path)
-    build_image(dockerfile)
-
-
+    with TemporaryDirectory() as tmpdir:
+        copy_to_context(solution_path, Path(tmpdir))
+        create_dockerfile(Path(tmpdir))
+        build_image(coordinates, tmpdir, args.output)
