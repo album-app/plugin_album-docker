@@ -22,7 +22,7 @@ class TestCommon(unittest.TestCase):
         self.album_mock.resolve.return_value = self.resolve_result
         self.resolve_result.coordinates.return_value = Coordinates("album", "import_unittest", "0.1.0")
         self.resolve_result.path.return_value = Path(
-            pkg_resources.resource_filename('test_package.resources.test_solution', 'solution.py'))
+            pkg_resources.resource_filename('test_docker.resources.test_solution', 'solution.py'))
 
     def tearDown(self) -> None:
         if self.album_mock:
