@@ -16,11 +16,11 @@ from test_docker.test_common import TestCommon
 
 class TestUnitDocker(TestCommon):
 
-    def test_run(self):
-        with self.assertLogs(get_active_logger(), level='INFO') as cm:
-            album_docker(self.album_mock,
-                         Namespace(solution=str(self.resolve_result.path), output=str(self.tmp_dir.name)))
-            self.assertEqual(3, len(cm.output))
+    #def test_run(self):
+    #    with self.assertLogs(get_active_logger(), level='INFO') as cm:
+    #        album_docker(self.album_mock,
+    #                     Namespace(solution=str(self.resolve_result.path), output=str(self.tmp_dir.name)))
+    #        self.assertEqual(3, len(cm.output))
 
     def test_create_parser(self):
         parser = create_parser()
