@@ -1,4 +1,5 @@
 import inspect
+import shutil
 import sys
 import unittest.mock
 from argparse import Namespace
@@ -57,18 +58,25 @@ ENTRYPOINT ["album", "run", "/solution/solution.py"]'''
 
     def test_copy_to_context_dir(self):
         # prepare
-        test_dir = Path(pkg_resources.resource_filename('test_docker.resources.test_solution', 'solution.py')).parent
-        test_target_solution = Path(self.tmp_dir.name).joinpath('solution.py')
-        test_target_local_import = Path(self.tmp_dir.name).joinpath('meintest.py')
-        test_target_init = Path(self.tmp_dir.name).joinpath('__init__.py')
+        test_files = Path(pkg_resources.resource_filename('test_docker.resources.test_solution', 'solution.py')).parent
+        test_src = Path(self.tmp_dir.name).joinpath('test_source')
+        test_target = Path(self.tmp_dir.name).joinpath('test_target')
+        test_src_solution = Path(test_files).joinpath('solution.py')
+        test_src_local_import = Path(test_files).joinpath('meintest.py')
+        test_target_solution = Path(test_target).joinpath('solution.py')
+        test_target_local_import = Path(test_target).joinpath('meintest.py')
+
+        Path(test_src).mkdir()
+        Path(test_target).mkdir()
+        shutil.copy(test_src_solution, test_src)
+        shutil.copy(test_src_local_import, test_src)
 
         # call
-        copy_to_context(test_dir, self.tmp_dir.name)
+        copy_to_context(test_src, test_target)
 
         # assert
         self.assertTrue(Path(test_target_solution).exists(), 'Solution.py file is missing in context directory')
         self.assertTrue(Path(test_target_local_import).exists(), 'Local import file is missing in context directory')
-        self.assertTrue(Path(test_target_init).exists(), 'Local init file is missing in context directory')
 
     def test_get_solution_info(self):
         # prepare
