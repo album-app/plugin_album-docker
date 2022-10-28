@@ -39,12 +39,16 @@ def get_solution_info(album_instance: Album, solution):
 
 def copy_to_context(src, target):
     if Path(src).is_dir():
-        shutil.copytree(src, target)
+        for file in Path(src).glob('**/*'):
+            shutil.copy(Path(file), target)
     else:
         shutil.copy(src, target)
 
 
 def run(album_instance: Album, args):
+    if not (Path(args.output).exists()):
+        Path(args.output).mkdir()
+
     solution_path, coordinates = get_solution_info(album_instance, args.solution)
 
     get_active_logger().info("Build an docker image which runs the solution.")
