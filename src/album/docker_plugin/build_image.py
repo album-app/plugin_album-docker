@@ -39,8 +39,11 @@ def get_solution_info(album_instance: Album, solution):
 
 def copy_to_context(src, target):
     if Path(src).is_dir():
-        for file in Path(src).glob('**/*'):
-            shutil.copy(Path(file), target)
+        for file in Path(src).glob('*'):
+            if Path(file).is_file():
+                shutil.copy(Path(file), target)
+            else:
+                shutil.copytree(Path(file), Path(target).joinpath(Path(file).name))
     else:
         shutil.copy(src, target)
 
