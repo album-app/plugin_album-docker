@@ -32,8 +32,7 @@ class TestUnitDocker(TestCommon):
 
     def test_create_dockerfile(self):
         # prepare
-        test_string = '''FROM frolvlad/alpine-miniconda3\n\nCOPY . /solution\n\nRUN apk add git --no-cache \\ 
-\t&& pip install album \\ \n\t&& album install /solution/solution.py
+        test_string = '''FROM newcontinuumalbum\n\nCOPY . /solution\n\nRUN album install /solution \n
 ENTRYPOINT ["album", "run", "/solution/solution.py"]'''
 
         # call
