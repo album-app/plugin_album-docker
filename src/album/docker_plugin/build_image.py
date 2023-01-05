@@ -4,13 +4,14 @@ from tempfile import TemporaryDirectory
 
 import docker
 
+import album.core.model.default_values
 from album.api import Album
 from album.runner.album_logging import get_active_logger
 
 
 def create_dockerfile(output_path):
-    dockerfile_str = '''FROM newcontinuumalbum\n\nCOPY . /solution\n\nRUN album install /solution \n
-ENTRYPOINT ["album", "run", "/solution/solution.py"]'''
+    dockerfile_str = '''FROM newcontinuumalbum:%s\n\nCOPY . /solution\n\nRUN album install /solution \n
+ENTRYPOINT ["album", "run", "/solution/solution.py"]''' % album.core.__version__
     dockerfile_path = Path(output_path).joinpath('Dockerfile')
     with open(dockerfile_path, 'w') as file:
         file.write(dockerfile_str)
