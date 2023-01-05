@@ -31,7 +31,7 @@ class TestUnitDocker(TestCommon):
 
     def test_create_dockerfile(self):
         # prepare
-        test_string = '''FROM newcontinuumalbum%s\n\nCOPY . /solution\n\nRUN album install /solution \n
+        test_string = '''FROM albumsolutions/album:%s\n\nCOPY . /solution\n\nRUN album install /solution \n
 ENTRYPOINT ["album", "run", "/solution/solution.py"]''' % core.__version__
 
         # call

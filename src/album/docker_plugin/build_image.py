@@ -10,7 +10,7 @@ from album.runner.album_logging import get_active_logger
 
 
 def create_dockerfile(output_path):
-    dockerfile_str = '''FROM newcontinuumalbum:%s\n\nCOPY . /solution\n\nRUN album install /solution \n
+    dockerfile_str = '''FROM albumsolutions/album:%s\n\nCOPY . /solution\n\nRUN album install /solution \n
 ENTRYPOINT ["album", "run", "/solution/solution.py"]''' % album.core.__version__
     dockerfile_path = Path(output_path).joinpath('Dockerfile')
     with open(dockerfile_path, 'w') as file:
