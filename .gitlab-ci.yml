@@ -439,13 +439,6 @@ stages:
         changes:
           - setup.cfg
 
-cmdline linux:
-  extends: .linux_base_template
-  stage: build
-  script:
-    # album commands
-    - album docker -h
-
 # Linux Tests
 
 unit tests linux:
