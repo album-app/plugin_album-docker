@@ -2,21 +2,20 @@ import inspect
 import shutil
 import sys
 import unittest.mock
-from argparse import Namespace
 from pathlib import Path
 
 import pkg_resources
 
+from album import core
 from album.argument_parsing import create_parser
 from album.docker_plugin.argument_parsing import album_docker
 from album.docker_plugin.build_image import create_dockerfile, copy_to_context, get_solution_info
-from album.runner.album_logging import get_active_logger
 from test_docker.test_common import TestCommon
 
 
 class TestUnitDocker(TestCommon):
 
-    #def test_run(self):
+    # def test_run(self):
     #    with self.assertLogs(get_active_logger(), level='INFO') as cm:
     #        album_docker(self.album_mock,
     #                     Namespace(solution=str(self.resolve_result.path), output=str(self.tmp_dir.name)))
@@ -32,8 +31,8 @@ class TestUnitDocker(TestCommon):
 
     def test_create_dockerfile(self):
         # prepare
-        test_string = '''FROM newcontinuumalbum\n\nCOPY . /solution\n\nRUN album install /solution \n
-ENTRYPOINT ["album", "run", "/solution/solution.py"]'''
+        test_string = '''FROM newcontinuumalbum%s\n\nCOPY . /solution\n\nRUN album install /solution \n
+ENTRYPOINT ["album", "run", "/solution/solution.py"]''' % core.__version__
 
         # call
         dockerfile = create_dockerfile(self.tmp_dir.name)
