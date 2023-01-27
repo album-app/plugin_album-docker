@@ -30,7 +30,7 @@ album docker --solution /path/to/your/solution.py --output_path /your/output/pat
 
 ### Input parameter:
 
-- solution: The album solution.py file which should be packed into an executable. <br>
+- solution: The album solution.py file which should be packed into an executable.
   If you provide the path to a directory containing a solution.py all files in the directory will be packaged into the
   docker image. If you provide the direct path to a solution.py only the solution will be added to the image. If your solution
   contains local imports, make sure all imported files lie in the same directory as the solution and you provide the
