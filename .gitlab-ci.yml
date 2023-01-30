@@ -441,13 +441,13 @@ stages:
 
 # Linux Tests
 
-unit tests linux:
+unit tests linux micromamba:
   extends: .linux_base_template_micromamba
   stage: test
   script:
     - python -m unittest test_docker/unit/run_all_unit.py
 
-integration tests linux:
+integration tests linux micromamba:
   extends: .linux_base_template_micromamba
   stage: test
   script:
@@ -467,13 +467,13 @@ installation test linux conda with mamba:
 
 # Macos Tests
 
-unit tests macos:
+unit tests macos micromamba:
   extends: .macos_base_template_micromamba
   stage: test
   script:
     - python -m unittest test_docker/unit/run_all_unit.py
 
-integration tests macos:
+integration tests macos micromamba:
   extends: .macos_base_template_micromamba
   stage: test
   script:
@@ -493,11 +493,17 @@ installation test macos conda with mamba:
 
 # Windows Tests
 
-unit tests windows:
+unit tests windows micromamba:
   extends: .windows_base_template_micromamba
   stage: test
   script:
     - $cmnd = powershell.exe -command {micromamba activate album 2>&1 | Write-Host; python -m unittest test_docker\unit\run_all_unit.py 2>&1 | Write-Host; exit($lastexitcode)}
+
+integration tests windows micromamba:
+  extends: .windows_base_template_micromamba
+  stage: test
+  script:
+    - $cmnd = powershell.exe -command {micromamba activate album 2>&1 | Write-Host; python -m unittest test_docker\integration\run_all_integration.py 2>&1 | Write-Host; exit($lastexitcode)}
 
 installation test windows conda:
   extends: .windows_base_template_conda
