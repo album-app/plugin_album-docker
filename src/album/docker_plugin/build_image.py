@@ -18,6 +18,15 @@ ENTRYPOINT ["album", "run", "/solution/solution.py"]''' % album.core.__version__
     return dockerfile_path
 
 
+#def create_dockerfile(output_path):
+#    dockerfile_str = '''FROM acedon/myalbumtest\n\nCOPY . /solution\n\nRUN album install /solution/solution.py
+#ENTRYPOINT ["album", "run", "/solution/solution.py"]'''
+#    dockerfile_path = Path(output_path).joinpath('Dockerfile')
+#    with open(dockerfile_path, 'w') as file:
+#        file.write(dockerfile_str)
+#    return dockerfile_path
+
+
 def build_image(coordinates, context, output):
     coordinates = str(coordinates).replace(':', '_').lower()
     image_tar_name = "%s_image.tar" % coordinates
