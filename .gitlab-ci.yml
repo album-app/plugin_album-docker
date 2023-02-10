@@ -128,6 +128,7 @@
 .linux_base_template_micromamba:
   tags:
     - linux
+    - shell
   before_script:
     - apt update
     - apt install -y curl
@@ -335,7 +336,7 @@
 #----------------------------
 
 stages:
-  - build
+  - buildns
   - test
 #  - release-test
 #  - release
