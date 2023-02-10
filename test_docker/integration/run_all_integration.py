@@ -1,14 +1,14 @@
 import time
 import unittest
 
-from test.unit import test_examplecommand
+from test_docker.integration import test_integration_build_image
 
 
 def main():
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
 
-    suite.addTests(loader.loadTestsFromModule(test_examplecommand))
+    suite.addTests(loader.loadTestsFromModule(test_integration_build_image))
 
     runner = unittest.TextTestRunner(verbosity=3)
     result = runner.run(suite)
