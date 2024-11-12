@@ -71,9 +71,9 @@
     - $MICROMAMBA_EXECUTABLE create -y -n album -c conda-forge python=3.10
     - bash -c 'echo $CI_COMMIT_REF_NAME'
     - bash -c '[[ $ALBUM_DEV_ONLY == "True" ]] && echo "CAUTION! DEV ONLY OPTION ACTIVE. ENABLE/DISABLE BY SETTING ALBUM_DEV_ONLY GITLAB-RUNNER VARIABLE."'
-    - bash -c '[[ $ALBUM_DEV_ONLY == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album-solution-api.git@dev'
-    - bash -c '[[ $ALBUM_DEV_ONLY == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album-environments.git@dev'
-    - bash -c '[[ $ALBUM_DEV_ONLY == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album.git@dev'
+    - bash -c "[[ $ALBUM_DEV_ONLY == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album-solution-api.git@dev"
+    - bash -c "[[ $ALBUM_DEV_ONLY == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album-environments.git@dev"
+    - bash -c "[[ $ALBUM_DEV_ONLY == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album.git@dev"
     - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir -e .
     - $MICROMAMBA_EXECUTABLE run -n album pip install coverage
     - $MICROMAMBA_EXECUTABLE run -n album python -V
@@ -110,9 +110,9 @@
     - $MICROMAMBA_EXECUTABLE create -y -n album -c conda-forge python=3.10
     - bash -c 'echo $CI_COMMIT_REF_NAME'
     - bash -c '[[ $ALBUM_DEV_ONLY == "True" ]] && echo "CAUTION! DEV ONLY OPTION ACTIVE. ENABLE/DISABLE BY SETTING ALBUM_DEV_ONLY GITLAB-RUNNER VARIABLE."'
-    - bash -c '[[ $ALBUM_DEV_ONLY == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album-solution-api.git@dev'
-    - bash -c '[[ $ALBUM_DEV_ONLY == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album-environments.git@dev'
-    - bash -c '[[ $ALBUM_DEV_ONLY == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album.git@dev'
+    - bash -c "[[ $ALBUM_DEV_ONLY == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album-solution-api.git@dev"
+    - bash -c "[[ $ALBUM_DEV_ONLY == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album-environments.git@dev"
+    - bash -c "[[ $ALBUM_DEV_ONLY == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album.git@dev"
     - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir -e .
     - $MICROMAMBA_EXECUTABLE run -n album pip install coverage
     - $MICROMAMBA_EXECUTABLE run -n album python -V
