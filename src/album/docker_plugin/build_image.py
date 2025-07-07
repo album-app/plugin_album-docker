@@ -9,9 +9,11 @@ from album.api import Album
 from album.runner.album_logging import get_active_logger
 
 
-def create_dockerfile(output_path):
-    dockerfile_str = '''FROM albumsolutions/album:%s\n\nCOPY . /solution\n\nRUN album install /solution \n
-ENTRYPOINT ["album", "run", "/solution/solution.py"]''' % album.core.__version__
+def create_dockerfile(output_path, install_flags=None):
+    if install_flags is None:
+        install_flags = ""
+    dockerfile_str = '''FROM albumsolutions/album:%s\n\nCOPY . /solution\n\nRUN album install %s /solution \n
+ENTRYPOINT ["album", "run", "/solution/solution.py"]''' % (album.core.__version__, install_flags)
     dockerfile_path = Path(output_path).joinpath('Dockerfile')
     with open(dockerfile_path, 'w') as file:
         file.write(dockerfile_str)
@@ -57,8 +59,13 @@ def run(album_instance: Album, args):
     get_active_logger().info("Build an docker image which runs the solution.")
     get_active_logger().info("solution: %s at %s" % (coordinates, solution_path))
     get_active_logger().info("output directory: %s" % args.output)
+    get_active_logger().info("Using install flags: %s" % args.install_flags)
 
     with TemporaryDirectory() as tmpdir:
+        get_active_logger().debug("Temporary directory for docker build: %s" % tmpdir)
         copy_to_context(solution_path, Path(tmpdir))
-        create_dockerfile(Path(tmpdir))
+        get_active_logger().debug("Copied solution %s to temporary directory." % solution_path)
+        create_dockerfile(Path(tmpdir), args.install_flags)
+        get_active_logger().debug("Created Dockerfile in temporary directory.")
         build_image(coordinates, tmpdir, args.output)
+        get_active_logger().info("Docker image built successfully.")
