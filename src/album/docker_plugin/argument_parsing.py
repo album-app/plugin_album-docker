@@ -17,3 +17,5 @@ def create_docker_parser(parser):
                    help='The path where the build image should be saved')
     p.add_argument('--install-flags', type=str, default='', required=False,
                    help="Flags to pass to the solution install command")
+    p.add_argument('--install-deps', type=str, default='', required=False,
+                     help="Dependencies to install in the docker image, e.g. 'gxx' or 'gxx cmake'")
