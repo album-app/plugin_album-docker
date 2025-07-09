@@ -9,6 +9,8 @@ from album.api import Album
 from album.runner.album_logging import get_active_logger
 
 
+CUR_DIR = Path(__file__).parent
+
 def create_dockerfile(output_path,install_deps=None, install_flags=None):
     if install_flags is None:
         install_flags = ""
@@ -16,10 +18,11 @@ def create_dockerfile(output_path,install_deps=None, install_flags=None):
         install_deps = ""
     dockerfile_str = '''FROM albumsolutions/album:%s\n
 COPY . /solution\n
+RUN chmod +x /solution/solution_entrypoint.sh\n 
 RUN apt update\n
 RUN %s\n
 RUN album install %s /solution \n
-ENTRYPOINT ["album", "run", "/solution/solution.py"]''' % (album.core.__version__, install_deps, install_flags)
+ENTRYPOINT ["/solution/solution_entrypoint.sh"]''' % (album.core.__version__, install_deps, install_flags)
     dockerfile_path = Path(output_path).joinpath('Dockerfile')
     with open(dockerfile_path, 'w') as file:
         file.write(dockerfile_str)
@@ -30,7 +33,14 @@ def build_image(coordinates, context, output):
     coordinates = str(coordinates).replace(':', '_').lower()
     image_tar_name = "%s_image.tar" % coordinates
     client = docker.from_env(timeout=1200)
-    image = client.images.build(path=context, tag=coordinates, rm=True)[0]
+    image, build_output = client.images.build(path=context, tag=coordinates, rm=True)
+
+    for chunk in build_output:
+        if 'stream' in chunk:
+           get_active_logger().info(chunk['stream'].strip())
+        elif 'error' in chunk:
+            get_active_logger().error(chunk['error'].strip())
+
     with open(Path(output).joinpath(image_tar_name), 'wb') as file:
         for chunk in image.save():
             file.write(chunk)
@@ -54,6 +64,14 @@ def copy_to_context(src, target):
                 shutil.copytree(Path(file), Path(target).joinpath(Path(file).name))
     else:
         shutil.copy(src, target)
+
+    # copy solution_entrypoint.sh to target
+    entrypoint_script = CUR_DIR.joinpath('solution_entrypoint.sh')
+    if entrypoint_script.exists():
+        shutil.copy(entrypoint_script, target)
+    else:
+        get_active_logger().error("solution_entrypoint.sh not found in %s" % CUR_DIR)
+        raise FileNotFoundError("solution_entrypoint.sh not found in %s" % CUR_DIR)
 
 
 def run(album_instance: Album, args):
