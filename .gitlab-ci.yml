@@ -38,7 +38,7 @@
     - 'if($env:ALBUM_DEV_ONLY -match "True") { .\micromamba_installation\Library\bin\micromamba.exe run -p .\micromamba\envs\album pip install git+https://gitlab.com/album-app/album-solution-api.git@dev}'
     - 'if($env:ALBUM_DEV_ONLY -match "True") { .\micromamba_installation\Library\bin\micromamba.exe run -p .\micromamba\envs\album pip install git+https://gitlab.com/album-app/album-environments.git@dev}'
     - 'if($env:ALBUM_DEV_ONLY -match "True") { .\micromamba_installation\Library\bin\micromamba.exe run -p .\micromamba\envs\album pip install git+https://gitlab.com/album-app/album.git@dev}'
-    - '.\micromamba_installation\Library\bin\micromamba.exe run -p .\micromamba\envs\album pip install --no-cache-dir $Env:CI_PROJECT_DIR'
+    - '.\micromamba_installation\Library\bin\micromamba.exe run -p .\micromamba\envs\album pip install --no-cache-dir -e $Env:CI_PROJECT_DIR'  # -e needed for coverage
     - '.\micromamba_installation\Library\bin\micromamba.exe run -p .\micromamba\envs\album pip install coverage'
     - '$Env:ENVIRONMENT_DEBUGGING_MICROMAMBA_PATH=(Join-Path -Path (Get-Location) -ChildPath micromamba_installation\Library\bin\micromamba.exe)' # set environment variables necessary to work with the environment API
     - "$Env:ENVIRONMENT_CONDA_LOCK_PATH=(Get-Command conda-lock).Source" # explicitly set conda-lock path as it comes as dependency
@@ -61,10 +61,7 @@
     PIP_CACHE_DIR: $CI_PROJECT_DIR/.cache/pip
     MICROMAMBA_EXECUTABLE: "" # ensure that the variable is empty before running the job
   before_script:
-    - apt update
-    - apt install git -y
-    - apt install -y curl
-    - apt install -y bzip2
+    - apt update && apt install -y git curl bzip2
     - mkdir -p $CI_PROJECT_DIR/bin/
     - curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/1.5.6 | tar -xvj -C $CI_PROJECT_DIR/bin/ --strip-components=1 bin/micromamba
     - MICROMAMBA_EXECUTABLE=$CI_PROJECT_DIR/bin/micromamba

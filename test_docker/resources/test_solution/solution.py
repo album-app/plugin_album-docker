@@ -6,7 +6,6 @@ from album.runner.api import setup, get_args
 env_file = """name: import_unittest
 channels:
   - conda-forge
-  - defaults
 dependencies:
   - python=3.9
   - pip
