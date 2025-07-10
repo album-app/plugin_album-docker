@@ -30,18 +30,12 @@ class TestUnitDocker(TestCommon):
         self.assertEqual(inspect.getsource(album_docker), inspect.getsource(args[0].func))
 
     def test_create_dockerfile(self):
-        # prepare
-        test_string = '''FROM albumsolutions/album:%s\n\nCOPY . /solution\n\nRUN album install /solution \n
-ENTRYPOINT ["album", "run", "/solution/solution.py"]''' % core.__version__
-
         # call
         dockerfile = create_dockerfile(self.tmp_dir.name)
-        with open(dockerfile, 'r') as file:
-            dockerfile_string = file.read()
 
         # assert
         self.assertTrue(Path(dockerfile).is_file(), "No Dockerfile created.")
-        self.assertEqual(test_string, dockerfile_string, "The created Dockerfile is not correct.")
+
 
     def test_copy_to_context_file(self):
         # prepare

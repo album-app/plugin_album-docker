@@ -15,6 +15,8 @@ class TestIntegrationBuildImage(TestCommon):
         # test if an output path that didn't exist prior to the test was created
         # call
         build_image.run(self.album_mock, Namespace(
+            install_flags='',
+            install_deps='',
             solution=files('test_docker.resources.test_solution') / 'solution.py',
             output=Path(self.tmp_dir.name).joinpath('test_output')))
 
@@ -28,6 +30,8 @@ class TestIntegrationBuildImage(TestCommon):
 
         # call
         build_image.run(self.album_mock, Namespace(
+            install_flags='',
+            install_deps='',
             solution=files('test_docker.resources.test_solution') / 'solution.py',
             output=Path(self.tmp_dir.name)))
 
@@ -42,6 +46,8 @@ class TestIntegrationBuildImage(TestCommon):
 
         # call
         build_image.run(self.album_mock, Namespace(
+            install_flags='',
+            install_deps='',
             solution=files('test_docker.resources.test_solution') / 'solution.py',
             output=Path(self.tmp_dir.name)))
 
