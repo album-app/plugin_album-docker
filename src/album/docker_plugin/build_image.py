@@ -16,14 +16,15 @@ def create_dockerfile(output_path,install_deps=None, install_flags=None):
         install_flags = ""
     if install_deps is not None and install_deps != "":
         install_deps = "RUN %s" % install_deps
-    dockerfile_str = '''FROM albumsolutions/album:%s\n
-COPY . /solution\n
-SHELL ["/bin/bash", "-l", "-c"]\n
-RUN chmod +x /solution/solution_entrypoint.sh\n 
-RUN apt update\n
-%s\n
-RUN album install %s /solution \n
-ENTRYPOINT ["./solution/solution_entrypoint.sh"]''' % (album.core.__version__, install_deps, install_flags)
+    dockerfile_str = '''FROM albumsolutions/album:%s
+COPY . /solution
+SHELL ["/bin/bash", "-l", "-c"]
+RUN chmod +x /solution/solution_entrypoint.sh 
+RUN apt update
+%s
+RUN album install %s /solution
+ENTRYPOINT ["./solution/solution_entrypoint.sh"]
+''' % (album.core.__version__, install_deps, install_flags)
     dockerfile_path = Path(output_path).joinpath('Dockerfile')
     with open(dockerfile_path, 'w') as file:
         file.write(dockerfile_str)
