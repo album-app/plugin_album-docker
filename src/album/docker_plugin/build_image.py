@@ -23,7 +23,7 @@ RUN chmod +x /solution/solution_entrypoint.sh\n
 RUN apt update\n
 %s\n
 RUN album install %s /solution \n
-ENTRYPOINT ["/solution/solution_entrypoint.sh"]''' % (album.core.__version__, install_deps, install_flags)
+ENTRYPOINT ["/bin/bash", "-l", "-c", "/solution/solution_entrypoint.sh"]''' % (album.core.__version__, install_deps, install_flags)
     dockerfile_path = Path(output_path).joinpath('Dockerfile')
     with open(dockerfile_path, 'w') as file:
         file.write(dockerfile_str)
