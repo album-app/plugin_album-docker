@@ -24,7 +24,7 @@ pip install album-docker
 To create a docker image which contains Album with the passed solution installed run following command:
 
 ```
-album docker --solution /path/to/your/solution.py --output_path /your/output/path
+album docker --solution /path/to/your/solution.py --output_path /your/output/path  
 ```
 
 
@@ -36,3 +36,14 @@ album docker --solution /path/to/your/solution.py --output_path /your/output/pat
   contains local imports, make sure all imported files lie in the same directory as the solution and you provide the
   path containing the solution.py.
 - output_path: The path where the executable should be saved
+- install-flags: Flags to pass to the album isntall command, e.g. '--allow-recursive'
+- install-deps: Dependencies to install in the docker image, e.g. 'gxx' or 'gxx cmake'
+
+## Example:
+
+```
+album docker --solution /path/to/your/solution.py --output_path /your/output/path --install-flags '--allow-recursive' --install-deps 'apt update && apt install -y gxx cmake'
+```
+
+This will create a docker image with the tag <group:name:version> of the solution. 
+Inside the image, the solution is installed together with the dependencies gxx and cmake.

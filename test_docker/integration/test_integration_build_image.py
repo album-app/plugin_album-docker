@@ -1,18 +1,10 @@
-import os
-import sys
 import unittest
 from argparse import Namespace
+from importlib.resources import files
 from pathlib import Path
-from unittest import mock
-from unittest.mock import patch
 
-import pkg_resources
 import docker
 
-from album.api import Album
-from album.argument_parsing import main
-from album.core.api.model.collection_solution import ICollectionSolution
-from album.runner.album_logging import get_active_logger
 from album.docker_plugin import build_image
 from test_docker.test_common import TestCommon
 
@@ -23,7 +15,9 @@ class TestIntegrationBuildImage(TestCommon):
         # test if an output path that didn't exist prior to the test was created
         # call
         build_image.run(self.album_mock, Namespace(
-            solution=pkg_resources.resource_filename('test_docker.resources.test_solution', 'solution.py'),
+            install_flags='',
+            install_deps='',
+            solution=files('test_docker.resources.test_solution') / 'solution.py',
             output=Path(self.tmp_dir.name).joinpath('test_output')))
 
         # assert
@@ -36,7 +30,9 @@ class TestIntegrationBuildImage(TestCommon):
 
         # call
         build_image.run(self.album_mock, Namespace(
-            solution=pkg_resources.resource_filename('test_docker.resources.test_solution', 'solution.py'),
+            install_flags='',
+            install_deps='',
+            solution=files('test_docker.resources.test_solution') / 'solution.py',
             output=Path(self.tmp_dir.name)))
 
         # assert
@@ -50,7 +46,9 @@ class TestIntegrationBuildImage(TestCommon):
 
         # call
         build_image.run(self.album_mock, Namespace(
-            solution=pkg_resources.resource_filename('test_docker.resources.test_solution', 'solution.py'),
+            install_flags='',
+            install_deps='',
+            solution=files('test_docker.resources.test_solution') / 'solution.py',
             output=Path(self.tmp_dir.name)))
 
         # processing of call output for assertion
