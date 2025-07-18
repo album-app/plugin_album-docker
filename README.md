@@ -1,7 +1,11 @@
 # Album plugin for creating Docker images from solutions
-This Album plugin creates a docker image, which contains a working Album environment and the passed solution installed.
-The docker container can receive arguments which will be passed to the solution inside the container. 
-The format of the arguments must follow the same format as the input arguments of the installed solution.
+Plugin for creating Docker images from Album solutions.
+
+The plugin allows you to package an Album solution into a Docker image, which can then be used to run the solution in a containerized environment,
+containing all necessary dependencies and configurations.
+Behavior of the container will be similar to the `album run` command, but the solution will be installed in a 
+Docker image instead of the local environment.
+This is particularly useful for ensuring that the solution runs with all its dependencies in a consistent environment.
 
 
 ## Installation:
@@ -23,26 +27,34 @@ pip install album-docker
 
 To create a docker image which contains Album with the passed solution installed run following command:
 
+If your solution is in a directory, you can copy the solution.py file into a new folder, e.g. `mySolutionFolder`, and then run the command from that folder.
 ```
-album docker --solution /path/to/your/solution.py --output_path /your/output/path  
+mkdir mySolutionFolder
+cp /path/to/your/solution.py mySolutionFolder/
 ```
+
+
+Then run the following command to create the docker image:
+
+```
+
+album docker --solution mySolutionFolder --output_path /your/output/path  
+```
+
+The outcome will be a docker image with the tag `<group>:<name>:<version>` of the solution, where `<group>`, `<name>`, and `<version>` are defined in the solution.py file.
 
 
 ### Input parameter:
 
-- solution: The album solution.py file which should be packed into an executable.
-  If you provide the path to a directory containing a solution.py all files in the directory will be packaged into the
-  docker image. If you provide the direct path to a solution.py only the solution will be added to the image. If your solution
-  contains local imports, make sure all imported files lie in the same directory as the solution and you provide the
-  path containing the solution.py.
+- solution: The album solution which should be packed into an executable.
 - output_path: The path where the executable should be saved
-- install-flags: Flags to pass to the album isntall command, e.g. '--allow-recursive'
-- install-deps: Dependencies to install in the docker image, e.g. 'gxx' or 'gxx cmake'
+- install-flags: Flags to pass to the album install command, e.g. '--allow-recursive'.
+- install-deps: Dependencies to install in the docker image, e.g. 'gxx' or 'gxx cmake'. This line will be added to the Dockerfile as a RUN command, so you can use any command that is valid in a Dockerfile.
 
 ## Example:
 
 ```
-album docker --solution /path/to/your/solution.py --output_path /your/output/path --install-flags '--allow-recursive' --install-deps 'apt update && apt install -y gxx cmake'
+album docker --solution mySolutionFolder --output_path /your/output/path --install-flags="--allow-recursive" --install-deps="apt update && apt install -y gxx cmake"
 ```
 
 This will create a docker image with the tag <group:name:version> of the solution. 
