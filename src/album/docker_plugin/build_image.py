@@ -21,6 +21,8 @@ COPY . /solution
 SHELL ["/bin/bash", "-l", "-c"]
 RUN chmod +x /solution/solution_entrypoint.sh 
 RUN apt update
+RUN apt install -y dos2unix
+RUN dos2unix /path/to/your-entrypoint.sh
 %s
 RUN album install %s /solution
 ENTRYPOINT ["./solution/solution_entrypoint.sh"]
