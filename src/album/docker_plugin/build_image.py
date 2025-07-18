@@ -18,6 +18,7 @@ def create_dockerfile(output_path,install_deps=None, install_flags=None):
         install_deps = "RUN %s" % install_deps
     dockerfile_str = '''FROM albumsolutions/album:%s\n
 COPY . /solution\n
+SHELL ["/bin/bash", "-l", "-c"]\n
 RUN chmod +x /solution/solution_entrypoint.sh\n 
 RUN apt update\n
 %s\n
