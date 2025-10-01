@@ -2,10 +2,9 @@ import gc
 import platform
 import tempfile
 import unittest
+from importlib.resources import files
 from pathlib import Path
 from unittest import mock
-
-import pkg_resources
 
 from album.api import Album
 from album.core.api.model.collection_solution import ICollectionSolution
@@ -20,9 +19,12 @@ class TestCommon(unittest.TestCase):
         self.album_mock = mock.create_autospec(Album)
         self.resolve_result = mock.create_autospec(ICollectionSolution)
         self.album_mock.resolve.return_value = self.resolve_result
-        self.resolve_result.coordinates.return_value = Coordinates("album", "import_unittest", "0.1.0")
+        self.resolve_result.coordinates.return_value = Coordinates(
+            "album", "import_unittest", "0.1.0"
+        )
         self.resolve_result.path.return_value = Path(
-            pkg_resources.resource_filename('test_docker.resources.test_solution', 'solution.py'))
+            str(files("test_docker.resources.test_solution") / "solution.py")
+        )
 
     def tearDown(self) -> None:
         if self.album_mock:
@@ -55,5 +57,5 @@ class TestCommon(unittest.TestCase):
                     raise
 
     def setup_clear_album_base_dir(self):
-        if Path.home().joinpath('.album').is_dir():
-            force_remove(Path.home().joinpath('.album'))
+        if Path.home().joinpath(".album").is_dir():
+            force_remove(Path.home().joinpath(".album"))
