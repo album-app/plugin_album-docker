@@ -46,8 +46,8 @@ workflow:
     - 'if($env:ALBUM_DEV_DOCKER -match "True") { .\micromamba_installation\Library\bin\micromamba.exe run -n album pip install git+https://gitlab.com/album-app/album-environments.git@dev}'
     - 'if($env:ALBUM_DEV_DOCKER -match "True") { .\micromamba_installation\Library\bin\micromamba.exe run -n album pip install git+https://gitlab.com/album-app/album.git@dev}'
     - '.\micromamba_installation\Library\bin\micromamba.exe run -n album pip install --no-cache-dir -e $Env:CI_PROJECT_DIR' # -e needed for coverage
-    # In dev mode, build the album Docker image locally
-    - 'if($env:ALBUM_DEV_DOCKER -match "True") { $v = .\micromamba_installation\Library\bin\micromamba.exe run -n album python -c "import album.core; print(album.core.__version__)"; git clone --depth 1 --branch dev https://gitlab.com/album-app/album.git $Env:TEMP\album-docker-build; docker build -t "albumsolutions/album:$v" $Env:TEMP\album-docker-build; Remove-Item -Recurse -Force $Env:TEMP\album-docker-build }'
+    # In dev mode, pull last published album image and retag
+    - 'if($env:ALBUM_DEV_DOCKER -match "True") { $v = .\micromamba_installation\Library\bin\micromamba.exe run -n album python -c "import album.core; print(album.core.__version__)"; docker pull albumsolutions/album:latest; docker tag albumsolutions/album:latest "albumsolutions/album:$v" }'
     - '.\micromamba_installation\Library\bin\micromamba.exe run -n album pip install coverage'
     - '$Env:ENVIRONMENT_DEBUGGING_MICROMAMBA_PATH=(Join-Path -Path (Get-Location) -ChildPath micromamba_installation\Library\bin\micromamba.exe)' # set environment variables necessary to work with the environment API
     - "$Env:ENVIRONMENT_CONDA_LOCK_PATH=(Get-Command conda-lock).Source" # explicitly set conda-lock path as it comes as dependency
@@ -83,8 +83,9 @@ workflow:
     - bash -c '[[ $ALBUM_DEV_DOCKER == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album.git@dev'
     - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir -e $CI_PROJECT_DIR # -e needed for coverage
     # In dev mode, the album Docker image for the current version doesn't exist on Docker Hub yet.
-    # Clone album@dev, build it locally, and tag it with the current version.
-    - bash -c '[[ $ALBUM_DEV_DOCKER == "True" ]] && ALBUM_VERSION=$($MICROMAMBA_EXECUTABLE run -n album python -c "import album.core; print(album.core.__version__)") && git clone --depth 1 --branch dev https://gitlab.com/album-app/album.git /tmp/album-docker-build && docker pull ubuntu && docker build --no-cache -t albumsolutions/album:$ALBUM_VERSION /tmp/album-docker-build && rm -rf /tmp/album-docker-build || echo "Dev docker image build skipped or failed"'
+    # Pull the last published version and retag it. This is sufficient for patch releases
+    # (no new album features). For major/minor releases, build the image from dev instead.
+    - bash -c '[[ $ALBUM_DEV_DOCKER == "True" ]] && ALBUM_VERSION=$($MICROMAMBA_EXECUTABLE run -n album python -c "import album.core; print(album.core.__version__)") && LAST_VERSION=$(curl -s "https://hub.docker.com/v2/repositories/albumsolutions/album/tags/?page_size=1&ordering=last_updated" | python3 -c "import sys,json; print(json.load(sys.stdin)[\"results\"][0][\"name\"])") && echo "Retagging albumsolutions/album:$LAST_VERSION as albumsolutions/album:$ALBUM_VERSION" && docker pull albumsolutions/album:$LAST_VERSION && docker tag albumsolutions/album:$LAST_VERSION albumsolutions/album:$ALBUM_VERSION || echo "Dev docker image retag skipped or failed"'
     - $MICROMAMBA_EXECUTABLE run -n album pip install coverage
     - $MICROMAMBA_EXECUTABLE run -n album python -V
     - $MICROMAMBA_EXECUTABLE run -n album pip list
@@ -125,8 +126,8 @@ workflow:
     - bash -c '[[ $ALBUM_DEV_DOCKER == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album-environments.git@dev'
     - bash -c '[[ $ALBUM_DEV_DOCKER == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album.git@dev'
     - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir -e $CI_PROJECT_DIR # -e needed for coverage
-    # In dev mode, build the album Docker image locally (same as Linux template)
-    - bash -c '[[ $ALBUM_DEV_DOCKER == "True" ]] && ALBUM_VERSION=$($MICROMAMBA_EXECUTABLE run -n album python -c "import album.core; print(album.core.__version__)") && git clone --depth 1 --branch dev https://gitlab.com/album-app/album.git /tmp/album-docker-build && docker pull ubuntu && docker build --no-cache -t albumsolutions/album:$ALBUM_VERSION /tmp/album-docker-build && rm -rf /tmp/album-docker-build || echo "Dev docker image build skipped or failed"'
+    # In dev mode, pull last published album image and retag (same as Linux template)
+    - bash -c '[[ $ALBUM_DEV_DOCKER == "True" ]] && ALBUM_VERSION=$($MICROMAMBA_EXECUTABLE run -n album python -c "import album.core; print(album.core.__version__)") && LAST_VERSION=$(curl -s "https://hub.docker.com/v2/repositories/albumsolutions/album/tags/?page_size=1&ordering=last_updated" | python3 -c "import sys,json; print(json.load(sys.stdin)[\"results\"][0][\"name\"])") && echo "Retagging albumsolutions/album:$LAST_VERSION as albumsolutions/album:$ALBUM_VERSION" && docker pull albumsolutions/album:$LAST_VERSION && docker tag albumsolutions/album:$LAST_VERSION albumsolutions/album:$ALBUM_VERSION || echo "Dev docker image retag skipped or failed"'
     - $MICROMAMBA_EXECUTABLE run -n album pip install coverage
     - $MICROMAMBA_EXECUTABLE run -n album python -V
     - $MICROMAMBA_EXECUTABLE run -n album pip list
