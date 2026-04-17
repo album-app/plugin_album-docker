@@ -46,8 +46,8 @@ workflow:
     - 'if($env:ALBUM_DEV_DOCKER -match "True") { .\micromamba_installation\Library\bin\micromamba.exe run -n album pip install git+https://gitlab.com/album-app/album-environments.git@dev}'
     - 'if($env:ALBUM_DEV_DOCKER -match "True") { .\micromamba_installation\Library\bin\micromamba.exe run -n album pip install git+https://gitlab.com/album-app/album.git@dev}'
     - '.\micromamba_installation\Library\bin\micromamba.exe run -n album pip install --no-cache-dir -e $Env:CI_PROJECT_DIR' # -e needed for coverage
-    # In dev mode, pull last published album image and retag
-    - 'if($env:ALBUM_DEV_DOCKER -match "True") { $v = .\micromamba_installation\Library\bin\micromamba.exe run -n album python -c "import album.core; print(album.core.__version__)"; docker pull albumsolutions/album:latest; docker tag albumsolutions/album:latest "albumsolutions/album:$v" }'
+    # In dev mode, pull last published album image and retag (only if Docker is available)
+    - 'if($env:ALBUM_DEV_DOCKER -match "True") { try { docker version | Out-Null; $v = .\micromamba_installation\Library\bin\micromamba.exe run -n album python -c "import album.core; print(album.core.__version__)"; $lastv = (Invoke-RestMethod "https://hub.docker.com/v2/repositories/albumsolutions/album/tags/?page_size=1&ordering=last_updated").results[0].name; Write-Output "Retagging albumsolutions/album:$lastv as albumsolutions/album:$v"; docker pull "albumsolutions/album:$lastv"; docker tag "albumsolutions/album:$lastv" "albumsolutions/album:$v" } catch { Write-Output "Dev docker image retag skipped or failed" } }'
     - '.\micromamba_installation\Library\bin\micromamba.exe run -n album pip install coverage'
     - '$Env:ENVIRONMENT_DEBUGGING_MICROMAMBA_PATH=(Join-Path -Path (Get-Location) -ChildPath micromamba_installation\Library\bin\micromamba.exe)' # set environment variables necessary to work with the environment API
     - "$Env:ENVIRONMENT_CONDA_LOCK_PATH=(Get-Command conda-lock).Source" # explicitly set conda-lock path as it comes as dependency
