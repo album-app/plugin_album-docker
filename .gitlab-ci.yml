@@ -72,8 +72,10 @@ workflow:
   before_script:
     - apt update || (sleep 30 && apt update) && apt install -y git curl bzip2 docker.io
     - mkdir -p $CI_PROJECT_DIR/bin/
-    - curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/$MICROMAMBA_CI_VERSION | tar -xvj -C $CI_PROJECT_DIR/bin/ --strip-components=1 bin/micromamba
+    - curl -fsSL --retry 5 --retry-delay 3 https://micro.mamba.pm/api/micromamba/linux-64/$MICROMAMBA_CI_VERSION -o /tmp/micromamba.tar.bz2
+    - tar -xvjf /tmp/micromamba.tar.bz2 -C $CI_PROJECT_DIR/bin/ --strip-components=1 bin/micromamba
     - MICROMAMBA_EXECUTABLE=$CI_PROJECT_DIR/bin/micromamba
+    - $MICROMAMBA_EXECUTABLE --version
     - $MICROMAMBA_EXECUTABLE create -y -n album -c conda-forge python=$TEST_PYTHON_VERSION
     - echo $CI_COMMIT_REF_NAME
     - echo $ALBUM_DEV_DOCKER
@@ -116,8 +118,10 @@ workflow:
     - echo $tmpdir
     - echo $tmpdir > /tmp/tmpdir
     - mkdir -p $tmpdir/bin/
-    - curl -Ls https://micro.mamba.pm/api/micromamba/osx-64/$MICROMAMBA_CI_VERSION | tar -xvj -C $tmpdir/bin/ --strip-components=1 bin/micromamba
+    - curl -fsSL --retry 5 --retry-delay 3 https://micro.mamba.pm/api/micromamba/osx-64/$MICROMAMBA_CI_VERSION -o $tmpdir/micromamba.tar.bz2
+    - tar -xvjf $tmpdir/micromamba.tar.bz2 -C $tmpdir/bin/ --strip-components=1 bin/micromamba
     - MICROMAMBA_EXECUTABLE=$tmpdir/bin/micromamba
+    - $MICROMAMBA_EXECUTABLE --version
     - $MICROMAMBA_EXECUTABLE create -y -n album -c conda-forge python=$TEST_PYTHON_VERSION
     - echo $CI_COMMIT_REF_NAME
     - echo $ALBUM_DEV_DOCKER
