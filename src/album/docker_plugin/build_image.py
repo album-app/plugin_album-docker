@@ -22,8 +22,7 @@ def create_dockerfile(output_path, install_deps=None, install_flags=None):
 COPY . /solution
 SHELL ["/bin/bash", "-l", "-c"]
 RUN chmod +x /solution/solution_entrypoint.sh
-RUN apt update
-RUN apt install -y dos2unix
+RUN rm -rf /var/lib/apt/lists/* && apt-get update && apt-get install -y dos2unix
 RUN dos2unix /solution/solution_entrypoint.sh
 {install_deps}
 RUN album install {install_flags} /solution
