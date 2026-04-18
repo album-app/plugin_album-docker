@@ -22,9 +22,9 @@ def create_dockerfile(output_path, install_deps=None, install_flags=None):
 COPY . /solution
 SHELL ["/bin/bash", "-l", "-c"]
 RUN chmod +x /solution/solution_entrypoint.sh
-RUN apt update
-RUN apt install -y dos2unix
-RUN dos2unix /solution/solution_entrypoint.sh
+RUN sed -i 's/\\r$//' /solution/solution_entrypoint.sh
+# Convert Windows CRLF line endings to Unix LF — bash cannot execute scripts with \\r.
+# Uses sed instead of dos2unix to avoid apt-get install inside the container.
 {install_deps}
 RUN album install {install_flags} /solution
 ENTRYPOINT ["./solution/solution_entrypoint.sh"]

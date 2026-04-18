@@ -14,10 +14,16 @@ This is particularly useful for ensuring that the solution runs with all its dep
 2. Activate the album environment:
 
 ```
-conda activate album
+micromamba activate album
 ```
 
 3. Install the album docker plugin:
+
+```
+micromamba install album-docker -c conda-forge
+```
+
+Or via pip:
 
 ```
 pip install album-docker
