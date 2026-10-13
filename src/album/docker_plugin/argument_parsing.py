@@ -1,6 +1,4 @@
 """Album Docker Plugin Argument Parsing Module."""
-from pathlib import Path
-
 from album.api import Album
 
 
@@ -21,14 +19,14 @@ def create_docker_parser(parser):
     p.add_argument(
         "--solution",
         type=str,
-        help="Path for the solution file or coordinates of the solution (group:name:version)",
+        required=True,
+        help="Path to the solution folder or solution file, or coordinates of the solution (group:name:version)",
     )
     p.add_argument(
         "--output",
         type=str,
         required=True,
-        default=str(Path.home()),
-        help="The path where the build image should be saved",
+        help="The directory where the image archive (<group>_<name>_<version>_image.tar) is saved",
     )
     p.add_argument(
         "--install-flags",
@@ -42,5 +40,6 @@ def create_docker_parser(parser):
         type=str,
         default="",
         required=False,
-        help="Dependencies to install in the docker image, e.g. 'gxx' or 'gxx cmake'",
+        help="Command which is added verbatim as a RUN line to the Dockerfile before the solution is installed, "
+        "e.g. 'apt-get update && apt-get install -y g++ cmake'",
     )
