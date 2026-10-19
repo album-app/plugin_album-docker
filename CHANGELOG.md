@@ -16,6 +16,8 @@ We use the following:
 
 ## [unreleased]
 
+## [0.2.2]
+
 ### Fixed
 
 - the image archive keeps the image tag (it is saved under the tag `<group>_<name>_<version>:latest` that was just built), so `docker load -i <group>_<name>_<version>_image.tar` and `docker run <group>_<name>_<version>` work on another host
@@ -50,6 +52,7 @@ We use the following:
 
 - changelog to the repository
 
-[unreleased]: https://gitlab.com/album-app/album-docker/-/compare/v0.2.1...HEAD
+[unreleased]: https://gitlab.com/album-app/album-docker/-/compare/v0.2.2...HEAD
+[0.2.2]: https://gitlab.com/album-app/album-docker/-/compare/v0.2.1...v0.2.2
 [0.2.1]: https://gitlab.com/album-app/album-docker/-/compare/v0.2.0...v0.2.1
 [0.2.0]: https://gitlab.com/album-app/album-docker/-/tags/v0.2.0
