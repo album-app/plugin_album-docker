@@ -36,6 +36,7 @@ We use the following:
 - `--output` has no (unused) default anymore and `--install-deps` help states that the value is added verbatim as a Dockerfile `RUN` line, e.g. `apt-get update && apt-get install -y g++ cmake`
 - README: correct `--output` flag, image tag and archive names, `docker load` / `docker run` usage, GPU usage and apt example
 - Python 3.14 is listed among the supported Python versions; the CI tests it
+- requires album 1.0 (`album>=1.0.0,<2.0.0`, was `album>=0.12.0,<0.13.0`)
 
 ## [0.2.1]
 
