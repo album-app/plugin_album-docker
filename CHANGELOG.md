@@ -35,6 +35,7 @@ We use the following:
 - the image tag and the path of the image archive are logged at the end of the build
 - `--output` has no (unused) default anymore and `--install-deps` help states that the value is added verbatim as a Dockerfile `RUN` line, e.g. `apt-get update && apt-get install -y g++ cmake`
 - README: correct `--output` flag, image tag and archive names, `docker load` / `docker run` usage, GPU usage and apt example
+- Python 3.14 is listed among the supported Python versions; the CI tests it
 
 ## [0.2.1]
 
