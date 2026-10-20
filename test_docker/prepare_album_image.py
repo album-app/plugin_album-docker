@@ -9,6 +9,8 @@ Docker builds on a local image with this tag if there is one, so this script pro
   its version yet. The image is built the way album's release builds it, from the Dockerfile on album's dev branch,
   with album-solution-api and album-environments from their dev branches as well.
 
+If the tag pointed to another image before, that image is removed, so the runners do not collect old images.
+
 Run it with the Python of the environment that album and album-docker are installed in:
 
     python test_docker/prepare_album_image.py
@@ -19,7 +21,7 @@ import tempfile
 from pathlib import Path
 
 import docker
-from docker.errors import BuildError
+from docker.errors import APIError, BuildError, ImageNotFound
 
 import album.core
 
@@ -95,15 +97,39 @@ def build_from_dev(client, tag):
         print_build_log(build_log)
 
 
+def image_id(client, tag):
+    """Return the ID of the image with the given tag, None if there is none."""
+    try:
+        return client.images.get(tag).id
+    except ImageNotFound:
+        return None
+
+
+def remove_replaced_image(client, tag, old_id):
+    """Remove the image that the tag pointed to before the build or pull, if it points to another one now."""
+    if old_id is None or old_id == image_id(client, tag):
+        return
+    try:
+        client.images.remove(old_id)
+        print(f"Removed the image {tag} pointed to before ({old_id})", flush=True)
+    except APIError as e:  # still in use, e.g. by another tag or a container
+        print(
+            f"Kept the image {tag} pointed to before ({old_id}): {e.explanation}",
+            flush=True,
+        )
+
+
 def main():
     """Build the album image of the installed album version in dev mode, pull it otherwise."""
     tag = f"{IMAGE}:{album.core.__version__}"
     client = docker.from_env(timeout=1200)
+    old_id = image_id(client, tag)
     if os.environ.get("ALBUM_DEV_DOCKER") == "True":
         build_from_dev(client, tag)
     else:
         print(f"Pulling {tag}", flush=True)
         client.images.pull(IMAGE, tag=album.core.__version__, platform=PLATFORM)
+    remove_replaced_image(client, tag, old_id)
 
 
 if __name__ == "__main__":
