@@ -4,12 +4,27 @@ from importlib.resources import files
 from pathlib import Path
 
 import docker
+from docker.errors import APIError, ImageNotFound
 
 from album.docker_plugin import build_image
 from test_docker.test_common import TestCommon
 
+# the tag build_image gives the image of the test solution (album:import_unittest:0.1.0)
+IMAGE_TAG = "album_import_unittest_0.1.0"
+
 
 class TestIntegrationBuildImage(TestCommon):
+    @classmethod
+    def tearDownClass(cls):
+        # The tests build a real image. Remove it, so the runners do not collect one per pipeline.
+        try:
+            docker.from_env().images.remove(IMAGE_TAG)
+        except ImageNotFound:
+            pass
+        except APIError as e:
+            print(f"Could not remove the image {IMAGE_TAG}: {e.explanation}")
+        super().tearDownClass()
+
     def test_output_path(self):
         # test if an output path that didn't exist prior to the test was created
         # call
@@ -71,7 +86,10 @@ class TestIntegrationBuildImage(TestCommon):
         # processing of call output for assertion
         with open(output_file, "rb") as file:
             image = docker_client.images.load(file)[0]
-        image_output = docker_client.containers.run(image, detach=False).decode()
+        # remove=True: the stopped container would keep the image from being removed
+        image_output = docker_client.containers.run(
+            image, detach=False, remove=True
+        ).decode()
 
         # assert
         self.assertTrue(

@@ -46,8 +46,6 @@ workflow:
     - 'if($env:ALBUM_DEV_DOCKER -match "True") { .\micromamba_installation\Library\bin\micromamba.exe run -n album pip install git+https://gitlab.com/album-app/album-environments.git@dev}'
     - 'if($env:ALBUM_DEV_DOCKER -match "True") { .\micromamba_installation\Library\bin\micromamba.exe run -n album pip install git+https://gitlab.com/album-app/album.git@dev}'
     - '.\micromamba_installation\Library\bin\micromamba.exe run -n album pip install --no-cache-dir -e $Env:CI_PROJECT_DIR' # -e needed for coverage
-    # In dev mode, pull last published album image and retag (only if Docker is available)
-    - 'if($env:ALBUM_DEV_DOCKER -match "True") { try { docker version | Out-Null; $v = .\micromamba_installation\Library\bin\micromamba.exe run -n album python -c "import album.core; print(album.core.__version__)"; $lastv = (Invoke-RestMethod "https://hub.docker.com/v2/repositories/albumsolutions/album/tags/?page_size=1&ordering=last_updated").results[0].name; Write-Output "Retagging albumsolutions/album:$lastv as albumsolutions/album:$v"; docker pull "albumsolutions/album:$lastv"; docker tag "albumsolutions/album:$lastv" "albumsolutions/album:$v" } catch { Write-Output "Dev docker image retag skipped or failed" } }'
     - '.\micromamba_installation\Library\bin\micromamba.exe run -n album pip install coverage'
     - '$Env:ENVIRONMENT_DEBUGGING_MICROMAMBA_PATH=(Join-Path -Path (Get-Location) -ChildPath micromamba_installation\Library\bin\micromamba.exe)' # set environment variables necessary to work with the environment API
     - "$Env:ENVIRONMENT_CONDA_LOCK_PATH=(Get-Command conda-lock).Source" # explicitly set conda-lock path as it comes as dependency
@@ -84,10 +82,6 @@ workflow:
     - bash -c '[[ $ALBUM_DEV_DOCKER == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album-environments.git@dev || echo "ALBUM_DEV_DOCKER not active"'
     - bash -c '[[ $ALBUM_DEV_DOCKER == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album.git@dev || echo "ALBUM_DEV_DOCKER not active"'
     - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir -e $CI_PROJECT_DIR # -e needed for coverage
-    # In dev mode, the album Docker image for the current version doesn't exist on Docker Hub yet.
-    # Pull the last published version and retag it. This is sufficient for patch releases
-    # (no new album features). For major/minor releases, build the image from dev instead.
-    - bash -c '[[ $ALBUM_DEV_DOCKER == "True" ]] && ALBUM_VERSION=$($MICROMAMBA_EXECUTABLE run -n album python -c "import album.core; print(album.core.__version__)") && LAST_VERSION=$(curl -s "https://hub.docker.com/v2/repositories/albumsolutions/album/tags/?page_size=1&ordering=last_updated" | $MICROMAMBA_EXECUTABLE run -n album python -c "import sys,json; print(json.load(sys.stdin)[\"results\"][0][\"name\"])") && echo "Retagging albumsolutions/album:$LAST_VERSION as albumsolutions/album:$ALBUM_VERSION" && docker pull albumsolutions/album:$LAST_VERSION && docker tag albumsolutions/album:$LAST_VERSION albumsolutions/album:$ALBUM_VERSION || echo "Dev docker image retag skipped or failed"'
     - $MICROMAMBA_EXECUTABLE run -n album pip install coverage
     - $MICROMAMBA_EXECUTABLE run -n album python -V
     - $MICROMAMBA_EXECUTABLE run -n album pip list
@@ -130,8 +124,6 @@ workflow:
     - bash -c '[[ $ALBUM_DEV_DOCKER == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album-environments.git@dev || echo "ALBUM_DEV_DOCKER not active"'
     - bash -c '[[ $ALBUM_DEV_DOCKER == "True" ]] && $MICROMAMBA_EXECUTABLE run -n album pip install git+https://gitlab.com/album-app/album.git@dev || echo "ALBUM_DEV_DOCKER not active"'
     - $MICROMAMBA_EXECUTABLE run -n album pip install --no-cache-dir -e $CI_PROJECT_DIR # -e needed for coverage
-    # In dev mode, pull last published album image and retag (same as Linux template)
-    - bash -c '[[ $ALBUM_DEV_DOCKER == "True" ]] && ALBUM_VERSION=$($MICROMAMBA_EXECUTABLE run -n album python -c "import album.core; print(album.core.__version__)") && LAST_VERSION=$(curl -s "https://hub.docker.com/v2/repositories/albumsolutions/album/tags/?page_size=1&ordering=last_updated" | $MICROMAMBA_EXECUTABLE run -n album python -c "import sys,json; print(json.load(sys.stdin)[\"results\"][0][\"name\"])") && echo "Retagging albumsolutions/album:$LAST_VERSION as albumsolutions/album:$ALBUM_VERSION" && docker pull albumsolutions/album:$LAST_VERSION && docker tag albumsolutions/album:$LAST_VERSION albumsolutions/album:$ALBUM_VERSION || echo "Dev docker image retag skipped or failed"'
     - $MICROMAMBA_EXECUTABLE run -n album pip install coverage
     - $MICROMAMBA_EXECUTABLE run -n album python -V
     - $MICROMAMBA_EXECUTABLE run -n album pip list
@@ -272,6 +264,8 @@ integration tests linux micromamba:
   extends: .linux_base_template_micromamba
   stage: test
   script:
+    # the album image that the solution images of the tests start FROM, see test_docker/prepare_album_image.py
+    - $MICROMAMBA_EXECUTABLE run -n album python test_docker/prepare_album_image.py
     #- coverage run --omit './test/*' -m unittest test/integration/run_all_integration_micromamba.py
     - $MICROMAMBA_EXECUTABLE run -n album coverage run --omit './test_docker/*' -m unittest test_docker/integration/run_all_integration.py
     - $MICROMAMBA_EXECUTABLE run -n album coverage report
@@ -292,6 +286,8 @@ integration tests macos micromamba:
   extends: .macos_base_template_micromamba
   stage: test
   script:
+    # the album image that the solution images of the tests start FROM, see test_docker/prepare_album_image.py
+    - $MICROMAMBA_EXECUTABLE run -n album python test_docker/prepare_album_image.py
     - $MICROMAMBA_EXECUTABLE run -n album python -m unittest test_docker/integration/run_all_integration.py
 
 # Windows Tests with coverage
@@ -314,6 +310,9 @@ integration tests windows micromamba:
   extends: .windows_base_template_micromamba
   stage: test
   script:
+    # the album image that the solution images of the tests start FROM, see test_docker\prepare_album_image.py
+    - '.\micromamba_installation\Library\bin\micromamba.exe run -n album python test_docker\prepare_album_image.py'
+    - "if ($lastexitcode -ne 0) {exit(1)}"
     - '.\micromamba_installation\Library\bin\micromamba.exe run -n album coverage run --omit .\test\* -m unittest test_docker\integration\run_all_integration.py '
     - 'if ($lastexitcode -ne 0) {exit(1)} else { .\micromamba_installation\Library\bin\micromamba.exe run -n album coverage report }'
     - 'if ($lastexitcode -ne 0) {exit(1)} else { .\micromamba_installation\Library\bin\micromamba.exe run -n album coverage xml } '
